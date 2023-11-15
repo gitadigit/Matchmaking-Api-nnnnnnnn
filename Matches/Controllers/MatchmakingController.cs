@@ -11,43 +11,51 @@ namespace Matches.Controllers
     [ApiController]
     public class MatchmakingController : ControllerBase
     {
-        
-        private static List<Matchmaking> matchmaking = new List<Matchmaking> { new Matchmaking { Id = 123456789, FirstName = " FirstName", LastName = "LastName", Email = "Email@gmail.com", Phone = "0554455445", Age = 19, IsChoen = false, status=Status.Single }  };
+        private DataContext _dataContext;
+        public MatchmakingController(DataContext dataContext)
+        {
+            _dataContext = dataContext;
+        }
+
 
         // GET: api/<MatchmakingController>
         [HttpGet]
         public IEnumerable<Matchmaking> Get()
         {
-           return matchmaking;  
+           return _dataContext.matchmaking;  
         }
 
         // GET api/<MatchmakingController>/5
         [HttpGet("{id}")]
-        public Matchmaking Get(int id)
+        public ActionResult<Matchmaking> Get(int id)
         {
-            for (int i = 0; i < matchmaking.Count; i++)
-            {
-                if (matchmaking[i].Id == id)
-                    return matchmaking[i];
-            }
-            //return new HttpException(404,"page is not found!");
-            Response.StatusCode = 404;
-            //return new HttpNotFoundResult(); // 404
-            return new Matchmaking();
+            //for (int i = 0; i < _dataContext.matchmaking.Count; i++)
+            //{
+            //    if (_dataContext.matchmaking[i].Id == id)
+            //        return _dataContext.matchmaking[i];
+            //}
+            ////return new HttpException(404,"page is not found!");
+            //Response.StatusCode = 404;
+            ////return new HttpNotFoundResult(); // 404
+            //return new Matchmaking();
+            var match = _dataContext.matchmaking.Find(p => p.Id == id);
+            if (match == null)
+                return NotFound();
+            return match;
         }
 
         // POST api/<MatchmakingController>
         [HttpPost]
         public void Post([FromBody] Matchmaking value)
         {
-            matchmaking.Add(new Matchmaking { Id = value.Id, FirstName = value.FirstName, LastName = value.LastName, Age = value.Age, Phone = value.Phone, Email = value.Email, IsChoen = value.IsChoen, status = value.status });
+            _dataContext.matchmaking.Add(new Matchmaking { Id = value.Id, FirstName = value.FirstName, LastName = value.LastName, Age = value.Age, Phone = value.Phone, Email = value.Email, IsChoen = value.IsChoen, status = value.status });
         }
 
         // PUT api/<MatchmakingController>/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody] Matchmaking value)
         {
-            var matchmakingId = matchmaking.Find(matchmakingId => matchmakingId.Id == id);
+            var matchmakingId = _dataContext.matchmaking.Find(matchmakingId => matchmakingId.Id == id);
             matchmakingId.FirstName = value.FirstName;
             matchmakingId.LastName = value.LastName;
             matchmakingId.Age = value.Age;  
@@ -61,8 +69,8 @@ namespace Matches.Controllers
         [HttpDelete("{id}")]
         public void Delete(int id)
         {
-            var matchmakingId = matchmaking.Find(matchmakingId => matchmakingId.Id == id);
-            matchmaking.Remove(matchmakingId);
+            var matchmakingId = _dataContext.matchmaking.Find(matchmakingId => matchmakingId.Id == id);
+            _dataContext.matchmaking.Remove(matchmakingId);
         }
     }
 }
